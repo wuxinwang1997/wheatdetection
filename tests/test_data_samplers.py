@@ -7,7 +7,7 @@
 import sys
 import unittest
 
-sys.path.append('.')
+sys.path.append('/content/drive/My Drive/global-wheat-detection/code/wheatdetection/')
 from config.defaults import _C as cfg
 from data.transforms import build_transforms
 from data.build import build_dataset

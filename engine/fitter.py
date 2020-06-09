@@ -16,6 +16,7 @@ from tqdm import tqdm
 import pandas as pd
 from solver.build import make_optimizer
 from solver.lr_scheduler import make_scheduler
+import logging
 from google.colab import output
 warnings.filterwarnings("ignore")
 
@@ -47,6 +48,8 @@ class Fitter:
         self.early_stop_epochs = 0
         self.early_stop_patience = self.config.SOLVER.EARLY_STOP_PATIENCE
         self.do_scheduler = True
+        logger = logging.getLogger("reid_baseline.train")
+        logger.info("Start training")
 
     def fit(self):
         for epoch in range(self.epoch, self.config.SOLVER.MAX_EPOCHS ):

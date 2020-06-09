@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 from torch.utils.data import Dataset
 
-class WheatTestDataset(Dataset):
+class test_wheat(Dataset):
 
     def __init__(self, dataframe, image_dir, transforms=None):
         super().__init__()

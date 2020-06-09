@@ -12,7 +12,9 @@ import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 
 from .datasets.train_wheat import train_wheat
+from .datasets.test_wheat import test_wheat
 from .transforms import build_transforms
+from .transforms import get_test_transform
 from .collate_batch import  collate_batch
 
 def split_dataset(cfg):
@@ -22,9 +24,9 @@ def split_dataset(cfg):
     for i, column in enumerate(['x', 'y', 'w', 'h']):
         marking[column] = bboxs[:, i]
     marking.drop(columns=['bbox'], inplace=True)
-    df1 = marking[marking['w'] * marking['h'] < 154200.0]
-    df2 = df1[df1['w'] >= 16.0]
-    marking = df2[df2['h'] >= 16.0]
+    marking = marking[marking['w'] * marking['h'] < 154200.0]
+    error_bbox = [100648.0, 145360.0, 149744.0, 119790.0, 106743.0]
+    marking = marking[~marking['area'].isin(error_bbox)]
 
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
@@ -69,7 +71,6 @@ def build_dataset(cfg):
 
     return train_dataset, validation_dataset
 
-
 def make_data_loader(cfg, is_train=True):
     if is_train:
         batch_size = cfg.SOLVER.IMS_PER_BATCH
@@ -99,3 +100,28 @@ def make_data_loader(cfg, is_train=True):
     )
 
     return train_loader, val_loader
+
+def build_test_dataset(cfg):
+    test_df = pd.read_csv(f'{cfg.ROOT_DIR}/sample_submission.csv')
+    print(test_df.shape)
+    test_dataset = test_wheat(test_df, f'{cfg.ROOT_DIR}/test', get_test_transform())
+
+    return test_dataset
+
+def make_test_data_loader(cfg):
+    batch_size = cfg.TEST.IMS_PER_BATCH
+
+    test_dataset = build_test_dataset(cfg)
+
+    num_workers = cfg.DATALOADER.NUM_WORKERS
+
+    test_loader = data.DataLoader(
+        test_dataset,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=num_workers,
+        drop_last=False,
+        collate_fn=collate_batch
+    )
+
+    return test_loader

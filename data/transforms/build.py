@@ -51,6 +51,12 @@ def get_valid_transforms(cfg):
         )
     )
 
+def get_test_transform():
+    return A.Compose([
+        # A.Resize(512, 512),
+        ToTensorV2(p=1.0)
+    ])
+
 def build_transforms(cfg, is_train=True):
     if is_train:
         transform = get_train_transforms(cfg)

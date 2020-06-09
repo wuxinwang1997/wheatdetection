@@ -11,13 +11,29 @@ from os import mkdir
 
 import torch
 
-sys.path.append('.')
+from os import mkdir
+sys.path.append('../input/resnest/wheatdetection')
+sys.path.insert(0, "../input/resnest/pytorch-image-models-master/pytorch-image-models-master")
 from config import cfg
-from data import make_data_loader
-from engine.tester import inference
+from data import make_test_data_loader
 from modeling import build_model
 from utils.logger import setup_logger
+from engine.tester import Tester
 
+def test(cfg):
+    model = build_model(cfg)
+    device = cfg.MODEL.DEVICE
+    checkpoint = torch.load(cfg.TEST.WEIGHT)
+    best_score_threshold = checkpoint['best_score_threshold']
+    best_final_score = checkpoint['best_final_score']
+    print('-' * 30)
+    print(f'[Best Score Threshold]: {best_score_threshold}')
+    print(f'[OOF Score]: {best_final_score:.4f}')
+    print('-' * 30)
+    test_loader = make_test_data_loader(cfg)
+
+    tester = Tester(model=model, device=device, cfg=cfg, test_loader=test_loader)
+    tester.test()
 
 def main():
     parser = argparse.ArgumentParser(description="PyTorch Template MNIST Inference")
@@ -50,13 +66,7 @@ def main():
             config_str = "\n" + cf.read()
             logger.info(config_str)
     logger.info("Running with config:\n{}".format(cfg))
-
-    model = build_model(cfg)
-    model.load_state_dict(torch.load(cfg.TEST.WEIGHT))
-    val_loader = make_data_loader(cfg, is_train=False)
-
-    inference(cfg, model, val_loader)
-
+    test(cfg)
 
 if __name__ == '__main__':
     main()
