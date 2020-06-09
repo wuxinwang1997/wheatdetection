@@ -73,10 +73,8 @@ def build_dataset(cfg):
 def make_data_loader(cfg, is_train=True):
     if is_train:
         batch_size = cfg.SOLVER.IMS_PER_BATCH
-        shuffle = True
     else:
         batch_size = cfg.TEST.IMS_PER_BATCH
-        shuffle = False
 
     train_dataset, validation_dataset = build_dataset(cfg)
 

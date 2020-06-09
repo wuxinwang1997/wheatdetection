@@ -1,3 +1,9 @@
+# encoding: utf-8
+"""
+@author:  wuxin.wang
+@contact: wuxin.wang@whu.edu.cn
+"""
+
 import os
 import time
 import warnings
@@ -10,7 +16,7 @@ from tqdm import tqdm
 import pandas as pd
 from solver.build import make_optimizer
 from solver.lr_scheduler import make_scheduler
-# from google.colab import output
+from google.colab import output
 warnings.filterwarnings("ignore")
 
 class Fitter:

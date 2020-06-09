@@ -1,7 +1,7 @@
 # encoding: utf-8
 """
-@author:  sherlock
-@contact: sherlockliao01@gmail.com
+@author:  wuxin.wang
+@contact: wuxin.wang@whu.edu.cn
 """
 
 import sys
@@ -34,7 +34,6 @@ class TestDataSet(unittest.TestCase):
         val_test = build_dataset(val_transform, False)
         from IPython import embed;
         embed()
-
 
 if __name__ == '__main__':
     unittest.main()
