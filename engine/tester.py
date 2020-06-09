@@ -49,6 +49,7 @@ class Tester:
         results = []
         torch.cuda.empty_cache()
         test_loader = tqdm(self.test_loader, total=len(self.test_loader), desc="Testing")
+        count = 0
         with torch.no_grad():
             for step, (images, image_ids) in enumerate(test_loader):
                 images = list(image.to(self.device) for image in images)
@@ -70,8 +71,9 @@ class Tester:
                     }
 
                     results.append(result)
-
-                    self.show_result_image_with_bbox(i, images, outputs)
+                    if count < 10:
+                        self.show_result_image_with_bbox(i, images, outputs)
+                        count += 1
 
         return results
 
