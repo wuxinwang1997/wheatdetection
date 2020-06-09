@@ -21,7 +21,7 @@ from google.colab import output
 warnings.filterwarnings("ignore")
 
 class Fitter:
-    def __init__(self, model, device, cfg, train_loader, val_loader):
+    def __init__(self, model, device, cfg, train_loader, val_loader, logger):
         self.config = cfg
         self.epoch = 0
         self.train_loader = train_loader
@@ -31,7 +31,7 @@ class Fitter:
         if not os.path.exists(self.base_dir):
             os.makedirs(self.base_dir)
 
-        self.log_path = f'{self.base_dir}/log.txt'
+        self.logger = logger
         self.best_final_score = 0.0
         self.best_score_threshold = 0.5
 
@@ -43,13 +43,12 @@ class Fitter:
 
         self.scheduler = make_scheduler(cfg, self.optimizer, train_loader)
 
-        self.log(f'Fitter prepared. Device is {self.device}')
+        self.logger.info(f'Fitter prepared. Device is {self.device}')
         self.all_predictions = []
         self.early_stop_epochs = 0
         self.early_stop_patience = self.config.SOLVER.EARLY_STOP_PATIENCE
         self.do_scheduler = True
-        logger = logging.getLogger("reid_baseline.train")
-        logger.info("Start training")
+        self.logger.info("Start training")
 
     def fit(self):
         for epoch in range(self.epoch, self.config.SOLVER.MAX_EPOCHS ):
@@ -68,15 +67,13 @@ class Fitter:
             t = time.time()
             summary_loss = self.train_one_epoch()
 
-            self.log(
-                f'[RESULT]: Train. Epoch: {self.epoch}, summary_loss: {summary_loss.avg:.5f}, time: {(time.time() - t):.5f}')
+            self.logger(f'[RESULT]: Train. Epoch: {self.epoch}, summary_loss: {summary_loss.avg:.5f}, time: {(time.time() - t):.5f}')
             self.save(f'{self.base_dir}/last-checkpoint.bin')
 
             t = time.time()
             best_score_threshold, best_final_score = self.validation()
 
-            self.log(
-                f'[RESULT]: Val. Epoch: {self.epoch}, Best Score Threshold: {best_score_threshold:.2f}, Best Score: {best_final_score:.5f}, time: {(time.time() - t):.5f}')
+            self.logger( f'[RESULT]: Val. Epoch: {self.epoch}, Best Score Threshold: {best_score_threshold:.2f}, Best Score: {best_final_score:.5f}, time: {(time.time() - t):.5f}')
             if best_final_score > self.best_final_score:
                 self.best_final_score = best_final_score
                 self.best_score_threshold = best_score_threshold
@@ -115,6 +112,10 @@ class Fitter:
     def train_one_epoch(self):
         self.model.train()
         summary_loss = AverageMeter()
+        loss_box_reg = AverageMeter()
+        loss_classifier = AverageMeter()
+        loss_objectness = AverageMeter()
+        loss_rpn_box_reg = AverageMeter()
         t = time.time()
         train_loader = tqdm(self.train_loader, total=len(self.train_loader), desc="Training")
         for step, (images, targets, image_ids) in enumerate(train_loader):
@@ -127,17 +128,29 @@ class Fitter:
             self.optimizer.zero_grad()
             loss_dict = self.model(images, targets)
             loss = sum(loss for loss in loss_dict.values())
+            box_reg = loss_dict['loss_box_reg']
+            classifier = loss_dict['loss_classifier']
+            objectness = loss_dict['loss_objectness']
+            rpn_box_reg = loss_dict['loss_rpn_box_reg']
 
             loss.backward()
 
             summary_loss.update(loss.item(), batch_size)
+            loss_box_reg.update(box_reg.item(), batch_size)
+            loss_classifier.update(classifier.item(), batch_size)
+            loss_objectness.update(objectness.item(), batch_size)
+            loss_rpn_box_reg.update(rpn_box_reg.item(), batch_size)
             self.optimizer.step()
 
-            if self.do_scheduler:
+            if self.config.step_scheduler and self.do_scheduler:
                 self.scheduler.step()
             train_loader.set_description(f'Train Step {step}/{len(self.train_loader)}, ' + \
                                          f'Learning rate {self.optimizer.param_groups[0]["lr"]}, ' + \
                                          f'summary_loss: {summary_loss.avg:.5f}, ' + \
+                                         f'loss_box_reg: {loss_box_reg.avg:.5f}, ' + \
+                                         f'loss_classifier: {loss_classifier.avg:.5f}, ' + \
+                                         f'loss_objectness: {loss_objectness.avg:.5f}, ' + \
+                                         f'loss_rpn_box_reg: {loss_rpn_box_reg.avg:.5f}, ' + \
                                          f'time: {(time.time() - t):.5f}')
 
         return summary_loss
@@ -173,12 +186,6 @@ class Fitter:
         self.best_score_threshold = checkpoint['best_score_threshold']
         self.best_final_score = checkpoint['best_final_score']
         self.epoch = checkpoint['epoch'] + 1
-
-    def log(self, message):
-        if self.config.VERBOSE:
-            print(message)
-        with open(self.log_path, 'a+') as logger:
-            logger.write(f'{message}\n')
 
     def early_stop(self, score):
         if score < self.best_final_score:

@@ -28,7 +28,7 @@ def seed_everything(seed):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = True
 
-def train(cfg):
+def train(cfg, logger):
     seed_everything(cfg.SEED)
     model = build_model(cfg)
     device = cfg.MODEL.DEVICE
@@ -36,7 +36,7 @@ def train(cfg):
 
     train_loader, val_loader = make_data_loader(cfg, is_train=True)
 
-    fitter = Fitter(model=model, device=device, cfg=cfg, train_loader=train_loader, val_loader=val_loader)
+    fitter = Fitter(model=model, device=device, cfg=cfg, train_loader=train_loader, val_loader=val_loader, logger)
     if check:
         fitter.load(f'{cfg.OUTPUT_DIR}/last-checkpoint.bin')
     fitter.fit()
@@ -73,7 +73,7 @@ def main():
             logger.info(config_str)
     logger.info("Running with config:\n{}".format(cfg))
 
-    train(cfg)
+    train(cfg, logger)
 
 
 if __name__ == '__main__':
