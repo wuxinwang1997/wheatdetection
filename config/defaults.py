@@ -16,83 +16,106 @@ from yacs.config import CfgNode as CN
 
 _C = CN()
 
+_C.DEBUG = True
+_C.SEED = 42
+_C.VERBOSE = True
+
 _C.MODEL = CN()
 _C.MODEL.DEVICE = "cuda"
-_C.MODEL.NUM_CLASSES = 10
+_C.MODEL.NUM_CLASSES = 2
 
 # -----------------------------------------------------------------------------
 # INPUT
 # -----------------------------------------------------------------------------
 _C.INPUT = CN()
-# Size of the image during training
-_C.INPUT.SIZE_TRAIN = 32
-# Size of the image during test
-_C.INPUT.SIZE_TEST = 32
-# Minimum scale for the image during training
-_C.INPUT.MIN_SCALE_TRAIN = 0.5
-# Maximum scale for the image during test
-_C.INPUT.MAX_SCALE_TRAIN = 1.2
-# Random probability for image horizontal flip
-_C.INPUT.PROB = 0.5
-# Values to be used for image normalization
-_C.INPUT.PIXEL_MEAN = [0.1307, ]
-# Values to be used for image normalization
-_C.INPUT.PIXEL_STD = [0.3081, ]
+# RandomSizedCrop paramters
+_C.INPUT.RSC_MIN_MAX_HEIGHT = (800, 800)
+_C.INPUT.RSC_HEIGHT = 1024
+_C.INPUT.RSC_WIDTH = 1024
+_C.INPUT.RSC_PROB = 0.5
+# HueSaturationValue paramters
+_C.INPUT.HSV_H = 0.2
+_C.INPUT.HSV_S = 0.2
+_C.INPUT.HSV_V = 0.2
+_C.INPUT.HSV_PROB = 0.9
+# RandomBrightnessContrast paramters
+_C.INPUT.BC_B = 0.2
+_C.INPUT.BC_C = 0.2
+_C.INPUT.BC_PROB = 0.9
+# Color paramters
+_C.INPUT.COLOR_PROB = 0.9
+# Random probability for ToGray
+_C.INPUT.TOFGRAY_PROB = 0.01
+# Random probability for HorizontalFlip
+_C.INPUT.HFLIP_PROB = 0.5
+# Random probability for VerticalFlip
+_C.INPUT.VFLIP_PROB = 0.5
+# Coutout paramters
+_C.INPUT.COTOUT_NUM_HOLES = 8
+_C.INPUT.COTOUT_MAX_H_SIZE = 64
+_C.INPUT.COTOUT_MAX_W_SIZE = 64
+_C.INPUT.COTOUT_FILL_VALUE = 0
+_C.INPUT.COTOUT_PROB = 0.5
 
 # -----------------------------------------------------------------------------
 # Dataset
 # -----------------------------------------------------------------------------
 _C.DATASETS = CN()
-# List of the dataset names for training, as present in paths_catalog.py
-_C.DATASETS.TRAIN = ()
-# List of the dataset names for testing, as present in paths_catalog.py
-_C.DATASETS.TEST = ()
+# Root dir of dataset
+_C.DATASETS.ROOT_DIR = "/content/global-wheat-detection"
+# Fold to validate
+_C.DATASETS.VALID_FOLD = 0
+# # List of the dataset names for training, as present in paths_catalog.py
+# _C.DATASETS.TRAIN = ()
+# # List of the dataset names for testing, as present in paths_catalog.py
+# _C.DATASETS.TEST = ()
 
 # -----------------------------------------------------------------------------
 # DataLoader
 # -----------------------------------------------------------------------------
 _C.DATALOADER = CN()
 # Number of data loading threads
-_C.DATALOADER.NUM_WORKERS = 8
+_C.DATALOADER.NUM_WORKERS = 2
 
 # ---------------------------------------------------------------------------- #
 # Solver
 # ---------------------------------------------------------------------------- #
 _C.SOLVER = CN()
 _C.SOLVER.OPTIMIZER_NAME = "SGD"
+_C.SOLVER.SCHEDULER_NAME = "CosineAnnealingWarmRestarts"
+_C.SOLVER.COS_CPOCH = 2
+_C.SOLVER.T_MUL = 2
 
-_C.SOLVER.MAX_EPOCHS = 50
+_C.SOLVER.MAX_EPOCHS = 40
 
-_C.SOLVER.BASE_LR = 0.001
-_C.SOLVER.BIAS_LR_FACTOR = 2
+_C.SOLVER.BASE_LR = 0.005
+_C.SOLVER.BIAS_LR_FACTOR = 1
 
 _C.SOLVER.MOMENTUM = 0.9
 
 _C.SOLVER.WEIGHT_DECAY = 0.0005
 _C.SOLVER.WEIGHT_DECAY_BIAS = 0
+_C.SOLVER.WEIGHT_DECAY_BN = 0
 
-_C.SOLVER.GAMMA = 0.1
-_C.SOLVER.STEPS = (30000,)
+_C.SOLVER.WARMUP_EPOCHS = 10
 
-_C.SOLVER.WARMUP_FACTOR = 1.0 / 3
-_C.SOLVER.WARMUP_ITERS = 500
-_C.SOLVER.WARMUP_METHOD = "linear"
+_C.SOLVER.EARLY_STOP_PATIENCE = True
 
-_C.SOLVER.CHECKPOINT_PERIOD = 10
-_C.SOLVER.LOG_PERIOD = 100
+_C.SOLVER.TRAIN_CHECKPOINT = False
+_C.SOLVER.CLEAR_OUTPUT = True
 
 # Number of images per batch
 # This is global, so if we have 8 GPUs and IMS_PER_BATCH = 16, each GPU will
 # see 2 images per batch
-_C.SOLVER.IMS_PER_BATCH = 16
+_C.SOLVER.IMS_PER_BATCH = 4
 
 # This is global, so if we have 8 GPUs and IMS_PER_BATCH = 16, each GPU will
 # see 2 images per batch
 _C.TEST = CN()
-_C.TEST.IMS_PER_BATCH = 8
+_C.TEST.IMS_PER_BATCH = 4
 _C.TEST.WEIGHT = ""
 
 # ---------------------------------------------------------------------------- #
 # Misc options
 # ---------------------------------------------------------------------------- #
-_C.OUTPUT_DIR = ""
+_C.OUTPUT_DIR = "/content/output"

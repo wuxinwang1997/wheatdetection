@@ -1,7 +1,7 @@
 # encoding: utf-8
 """
-@author:  sherlock
-@contact: sherlockliao01@gmail.com
+@author:  wuxin.wang
+@contact: wuxin.wang@whu.edu.cn
 """
 
 import argparse
@@ -14,7 +14,7 @@ import torch
 sys.path.append('.')
 from config import cfg
 from data import make_data_loader
-from engine.example_inference import inference
+from engine.tester import inference
 from modeling import build_model
 from utils.logger import setup_logger
 

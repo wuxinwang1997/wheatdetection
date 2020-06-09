@@ -1,5 +1,8 @@
 # encoding: utf-8
 """
-@author:  sherlock
-@contact: sherlockliao01@gmail.com
+@author:  wuxin.wang
+@contact: wuxin.wang@whu.edu.cn
 """
+
+def collate_batch(batch):
+    return tuple(zip(*batch))

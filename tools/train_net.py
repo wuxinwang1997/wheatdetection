@@ -8,41 +8,38 @@ import argparse
 import os
 import sys
 from os import mkdir
-
-import torch.nn.functional as F
-
-sys.path.append('.')
+sys.path.append('/content/drive/My Drive/global-wheat-detection/code/wheatdetection/')
 from config import cfg
 from data import make_data_loader
-from engine.example_trainer import do_train
+from engine.fitter import Fitter
 from modeling import build_model
 from solver import make_optimizer
-
+import random
+import torch
+import numpy as np
 from utils.logger import setup_logger
 
+def seed_everything(seed):
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = True
 
 def train(cfg):
+    seed_everything(cfg.SEED)
     model = build_model(cfg)
     device = cfg.MODEL.DEVICE
+    check = cfg.SOLVER.TRAIN_CHECKPOINT
 
-    optimizer = make_optimizer(cfg, model)
-    scheduler = None
+    train_loader, val_loader = make_data_loader(cfg, is_train=True)
 
-    arguments = {}
-
-    train_loader = make_data_loader(cfg, is_train=True)
-    val_loader = make_data_loader(cfg, is_train=False)
-
-    do_train(
-        cfg,
-        model,
-        train_loader,
-        val_loader,
-        optimizer,
-        None,
-        F.cross_entropy,
-    )
-
+    fitter = Fitter(model=model, device=device, cfg=cfg, train_loader=train_loader, val_loader=val_loader)
+    if check:
+        fitter.load(f'{cfg.OUTPUT_DIR}/last-checkpoint.bin')
+    fitter.fit()
 
 def main():
     parser = argparse.ArgumentParser(description="PyTorch Template MNIST Training")

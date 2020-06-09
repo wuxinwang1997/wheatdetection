@@ -7,7 +7,6 @@
 import math
 import random
 
-
 class RandomErasing(object):
     """ Randomly selects a rectangle region in an image and erases its pixels.
         'Random Erasing Data Augmentation' by Zhong et al.

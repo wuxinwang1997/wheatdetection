@@ -1,0 +1,4 @@
+DATASETS:
+  ROOT_DIR: "/content/global-wheat-detection"
+
+OUTPUT_DIR: "/content/drive/My Drive/Global_Wheat_Detection/fasterrcnn/resnest-baseline"

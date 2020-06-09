@@ -4,9 +4,9 @@
 @contact: sherlockliao01@gmail.com
 """
 
-from .example_model import ResNet18
+from .weat_detector import WheatDetector
 
 
 def build_model(cfg):
-    model = ResNet18(cfg.MODEL.NUM_CLASSES)
+    model = WheatDetector(cfg)
     return model
