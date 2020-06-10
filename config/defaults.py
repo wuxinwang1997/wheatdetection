@@ -4,7 +4,7 @@
 @contact: wuxin.wang@whu.edu.cn
 """
 import sys
-sys.path.insert(0, "/content/drive/My Drive/global-wheat-detection/code/wheatdetection/external/yacs")
+sys.path.insert(0, "/content/drive/My Drive/Global_Wheat_Detection/code/wheatdetection/external/yacs")
 from yacs.config import CfgNode as CN
 
 # -----------------------------------------------------------------------------
@@ -23,7 +23,7 @@ from yacs.config import CfgNode as CN
 
 _C = CN()
 
-_C.DEBUG = False
+_C.DEBUG = True
 _C.SEED = 42
 _C.VERBOSE = True
 
