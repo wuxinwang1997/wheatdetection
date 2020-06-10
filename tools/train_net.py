@@ -36,7 +36,7 @@ def train(cfg, logger):
 
     train_loader, val_loader = make_data_loader(cfg, is_train=True)
 
-    fitter = Fitter(model=model, device=device, cfg=cfg, train_loader=train_loader, val_loader=val_loader, logger)
+    fitter = Fitter(model=model, device=device, cfg=cfg, train_loader=train_loader, val_loader=val_loader, logger=logger)
     if check:
         fitter.load(f'{cfg.OUTPUT_DIR}/last-checkpoint.bin')
     fitter.fit()
@@ -62,7 +62,7 @@ def main():
     if output_dir and not os.path.exists(output_dir):
         mkdir(output_dir)
 
-    logger = setup_logger("template_model", output_dir, 0)
+    logger = setup_logger("wheatdetection", output_dir, 0)
     logger.info("Using {} GPUS".format(num_gpus))
     logger.info(args)
 

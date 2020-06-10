@@ -62,18 +62,18 @@ class Fitter:
             if self.config.VERBOSE:
                 lr = self.optimizer.param_groups[0]['lr']
                 timestamp = datetime.utcnow().isoformat()
-                self.log(f'\n{timestamp}\nLR: {lr}')
+                self.logger.info(f'\n{timestamp}\nLR: {lr}')
 
             t = time.time()
             summary_loss = self.train_one_epoch()
 
-            self.logger(f'[RESULT]: Train. Epoch: {self.epoch}, summary_loss: {summary_loss.avg:.5f}, time: {(time.time() - t):.5f}')
+            self.logger.info(f'[RESULT]: Train. Epoch: {self.epoch}, summary_loss: {summary_loss.avg:.5f}, time: {(time.time() - t):.5f}')
             self.save(f'{self.base_dir}/last-checkpoint.bin')
 
             t = time.time()
             best_score_threshold, best_final_score = self.validation()
 
-            self.logger( f'[RESULT]: Val. Epoch: {self.epoch}, Best Score Threshold: {best_score_threshold:.2f}, Best Score: {best_final_score:.5f}, time: {(time.time() - t):.5f}')
+            self.logger.info( f'[RESULT]: Val. Epoch: {self.epoch}, Best Score Threshold: {best_score_threshold:.2f}, Best Score: {best_final_score:.5f}, time: {(time.time() - t):.5f}')
             if best_final_score > self.best_final_score:
                 self.best_final_score = best_final_score
                 self.best_score_threshold = best_score_threshold
@@ -83,8 +83,8 @@ class Fitter:
                 self.save_predictions(f'{self.base_dir}/all_predictions.csv')
 
             self.early_stop(best_final_score)
-            if self.early_stop_epochs > self.early_stop_patience:
-                self.log('Early Stopping!')
+            if self.early_stop_epochs > self.config.SOLVER.EARLY_STOP_PATIENCE:
+                self.logger.info('Early Stopping!')
                 break
 
             if self.epoch % self.config.SOLVER.CLEAR_OUTPUT == 0:
@@ -142,7 +142,7 @@ class Fitter:
             loss_rpn_box_reg.update(rpn_box_reg.item(), batch_size)
             self.optimizer.step()
 
-            if self.config.step_scheduler and self.do_scheduler:
+            if self.do_scheduler:
                 self.scheduler.step()
             train_loader.set_description(f'Train Step {step}/{len(self.train_loader)}, ' + \
                                          f'Learning rate {self.optimizer.param_groups[0]["lr"]}, ' + \

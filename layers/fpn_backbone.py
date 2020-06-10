@@ -3,7 +3,8 @@
 @author:  wuxin.wang
 @contact: wuxin.wang@whu.edu.cn
 """
-import timm
+import sys
+sys.path.insert(0, "/content/drive/My Drive/global-wheat-detection/code/wheatdetection/external/pytorch-image-models")
 from timm.models.resnest import resnest101e
 from torchvision.models import resnet
 from torchvision.models.detection.backbone_utils import BackboneWithFPN

@@ -3,7 +3,8 @@
 @author:  wuxin.wang
 @contact: wuxin.wang@whu.edu.cn
 """
-
+import sys
+sys.path.insert(0, "/content/drive/My Drive/global-wheat-detection/code/wheatdetection/external/yacs")
 from yacs.config import CfgNode as CN
 
 # -----------------------------------------------------------------------------
@@ -105,7 +106,7 @@ _C.SOLVER.WEIGHT_DECAY_BN = 0
 
 _C.SOLVER.WARMUP_EPOCHS = 10
 
-_C.SOLVER.EARLY_STOP_PATIENCE = True
+_C.SOLVER.EARLY_STOP_PATIENCE = 20
 
 _C.SOLVER.TRAIN_CHECKPOINT = False
 _C.SOLVER.CLEAR_OUTPUT = True
@@ -119,7 +120,7 @@ _C.SOLVER.IMS_PER_BATCH = 4
 # see 2 images per batch
 _C.TEST = CN()
 _C.TEST.IMS_PER_BATCH = 4
-_C.TEST.WEIGHT = ""
+_C.TEST.WEIGHT = "/content/output/best-checkpoint.bin"
 
 # ---------------------------------------------------------------------------- #
 # Misc options

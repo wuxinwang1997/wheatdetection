@@ -49,7 +49,6 @@ class Tester:
         results = []
         torch.cuda.empty_cache()
         test_loader = tqdm(self.test_loader, total=len(self.test_loader), desc="Testing")
-        count = 0
         with torch.no_grad():
             for step, (images, image_ids) in enumerate(test_loader):
                 images = list(image.to(self.device) for image in images)
@@ -71,13 +70,10 @@ class Tester:
                     }
 
                     results.append(result)
-                    if count < 10:
-                        self.show_result_image_with_bbox(i, images, outputs)
-                        count += 1
 
         return results
 
-    def format_prediction_string(boxes, scores):
+    def format_prediction_string(self, boxes, scores):
         pred_strings = []
         for j in zip(scores, boxes):
             pred_strings.append("{0:.4f} {1} {2} {3} {4}".format(j[0], j[1][0], j[1][1], j[1][2], j[1][3]))
@@ -94,24 +90,6 @@ class Tester:
             'best_final_score': self.best_final_score,
             'epoch': self.epoch,
         }, path)
-
-    def show_result_image_with_bbox(self, index, images, outputs):
-        sample = images[index].permute(1, 2, 0).cpu().numpy()
-        boxes = outputs[index]['boxes'].data.cpu().numpy()
-        scores = outputs[index]['scores'].data.cpu().numpy()
-
-        boxes = boxes[scores >= self.best_score_threshold].astype(np.int32)
-
-        fig, ax = plt.subplots(1, 1, figsize=(16, 8))
-
-        for box in boxes:
-            cv2.rectangle(sample,
-                          (box[0], box[1]),
-                          (box[2], box[3]),
-                          (220, 0, 0), 2)
-
-        ax.set_axis_off()
-        ax.imshow(sample)
 
     def save_predictions(self, results):
         test_df = pd.DataFrame(results, columns=['image_id', 'PredictionString'])

@@ -12,8 +12,7 @@ from os import mkdir
 import torch
 
 from os import mkdir
-sys.path.append('../input/resnest/wheatdetection')
-sys.path.insert(0, "../input/resnest/pytorch-image-models-master/pytorch-image-models-master")
+sys.path.append('/content/drive/My Drive/global-wheat-detection/code/wheatdetection/')
 from config import cfg
 from data import make_test_data_loader
 from modeling import build_model
@@ -56,7 +55,7 @@ def main():
     if output_dir and not os.path.exists(output_dir):
         mkdir(output_dir)
 
-    logger = setup_logger("template_model", output_dir, 0)
+    logger = setup_logger("wheatdetection", output_dir, 0)
     logger.info("Using {} GPUS".format(num_gpus))
     logger.info(args)
 

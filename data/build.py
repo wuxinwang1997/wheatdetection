@@ -24,7 +24,8 @@ def split_dataset(cfg):
     for i, column in enumerate(['x', 'y', 'w', 'h']):
         marking[column] = bboxs[:, i]
     marking.drop(columns=['bbox'], inplace=True)
-    marking = marking[marking['w'] * marking['h'] < 154200.0]
+    marking['area'] = marking['w'] * marking['h']
+    marking = marking[marking['area'] < 154200.0]
     error_bbox = [100648.0, 145360.0, 149744.0, 119790.0, 106743.0]
     marking = marking[~marking['area'].isin(error_bbox)]
 
@@ -102,9 +103,9 @@ def make_data_loader(cfg, is_train=True):
     return train_loader, val_loader
 
 def build_test_dataset(cfg):
-    test_df = pd.read_csv(f'{cfg.ROOT_DIR}/sample_submission.csv')
+    test_df = pd.read_csv(f'{cfg.DATASETS.ROOT_DIR}/sample_submission.csv')
     print(test_df.shape)
-    test_dataset = test_wheat(test_df, f'{cfg.ROOT_DIR}/test', get_test_transform())
+    test_dataset = test_wheat(test_df, f'{cfg.DATASETS.ROOT_DIR}/test', get_test_transform())
 
     return test_dataset
 
