@@ -18,19 +18,25 @@ from .transforms import get_test_transform
 from .collate_batch import  collate_batch
 
 def split_dataset(cfg):
-    marking = pd.read_csv(f'{cfg.DATASETS.ROOT_DIR}/train.csv')
+    # marking = pd.read_csv(f'{cfg.DATASETS.ROOT_DIR}/train.csv')
+    marking = pd.read_csv(f'{cfg.DATASETS.ROOT_DIR}/marking.csv')
 
     bboxs = np.stack(marking['bbox'].apply(lambda x: np.fromstring(x[1:-1], sep=',')))
     for i, column in enumerate(['x', 'y', 'w', 'h']):
         marking[column] = bboxs[:, i]
-    marking.drop(columns=['bbox'], inplace=True)
-    marking['area'] = marking['w'] * marking['h']
-    marking = marking[marking['area'] < 154200.0]
-    error_bbox = [100648.0, 145360.0, 149744.0, 119790.0, 106743.0]
-    marking = marking[~marking['area'].isin(error_bbox)]
-    marking = marking[~marking['area'].isin(error_bbox)]
-    marking = marking[marking['w'] >= 5.0]
-    marking = marking[marking['h'] >= 5.0]
+    # marking.drop(columns=['bbox'], inplace=True)
+    # marking['area'] = marking['w'] * marking['h']
+    # marking = marking[marking['area'] < 154200.0]
+    # error_bbox = [100648.0, 145360.0, 149744.0, 119790.0, 106743.0]
+    # marking = marking[~marking['area'].isin(error_bbox)]
+    # marking = marking[~marking['area'].isin(error_bbox)]
+    # marking = marking[marking['w'] >= 5.0]
+    # marking = marking[marking['h'] >= 5.0]
+    marking = pd.read_csv('/content/global-wheat-detection/marking.csv')
+    # image_ids_marking = np.array(marking['image_id'])
+    # marking_all = marking_all[marking_all['image_id'].isin(image_ids_marking)]
+    marking = marking[marking['w'] >= 16.0]
+    marking = marking[marking['h'] >= 16.0]
 
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
