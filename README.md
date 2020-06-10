@@ -60,7 +60,8 @@ And I remove the high-leval api ignite which makes the project not easy to chang
 │   
 │ 
 ├──  tools                - here's the train/test model of my project.
-│    └── train_net.py  - here's an example of train model that is responsible for the whole pipeline.
+│    └── train_net.py  - here's the pipeline of train model that is responsible for the whole pipeline.
+|    └── test_net.py  - here's the pipeline  of train model that is responsible for the whole pipeline.
 │ 
 │ 
 └── utils
