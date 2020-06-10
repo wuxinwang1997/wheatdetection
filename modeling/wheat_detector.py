@@ -6,7 +6,7 @@
 
 import torch
 from torch import nn
-from layers.fastercnn import FasterRCNN
+from layers import FasterRCNN
 import torchvision.models.detection._utils as det_utils
 from layers.backbone_utils import resnest_fpn_backbone
 from layers.label_smooth_crossentropy import CrossEntropyLabelSmooth
@@ -15,7 +15,7 @@ class WheatDetector(nn.Module):
     def __init__(self, cfg, **kwargs):
         super(WheatDetector, self).__init__()
         self.backbone = resnest_fpn_backbone(pretrained=True)
-        self.base = FasterRCNN(self.backbone, num_classes = cfg.MODEL.NUM_CLASSES, **kwargs)
+        self.base = FasterRCNN(self.backbone, num_classes=cfg.MODEL.NUM_CLASSES, **kwargs)
 
     def forward(self, images, targets=None):
         return self.base(images, targets)

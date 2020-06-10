@@ -23,7 +23,7 @@ from yacs.config import CfgNode as CN
 
 _C = CN()
 
-_C.DEBUG = True
+_C.DEBUG = False
 _C.SEED = 42
 _C.VERBOSE = True
 
@@ -125,4 +125,4 @@ _C.TEST.WEIGHT = "/content/output/best-checkpoint.bin"
 # ---------------------------------------------------------------------------- #
 # Misc options
 # ---------------------------------------------------------------------------- #
-_C.OUTPUT_DIR = "/content/drive/My Drive/global-wheat-detection/experiments/baseline"
+_C.OUTPUT_DIR = "/content/drive/My Drive/Global_Wheat_Detection/experiments/baseline"

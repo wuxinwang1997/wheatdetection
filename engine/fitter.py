@@ -61,7 +61,7 @@ class Fitter:
             if self.config.VERBOSE:
                 lr = self.optimizer.param_groups[0]['lr']
                 timestamp = datetime.utcnow().isoformat()
-                self.logger.info(f'\n{timestamp}\nEpoch: {self.epoch}, LR: {lr}')
+                self.logger.info(f'\n{timestamp}\nLR: {lr}')
 
             t = time.time()
             summary_loss = self.train_one_epoch()
@@ -73,6 +73,7 @@ class Fitter:
             best_score_threshold, best_final_score, valid_loss = self.validation()
 
             self.logger.info( f'[RESULT]: Val. Epoch: {self.epoch}, valid_loss: {valid_loss.avg:.5f}, Best Score Threshold: {best_score_threshold:.2f}, Best Score: {best_final_score:.5f}, time: {(time.time() - t):.5f}')
+
             if valid_loss.avg < self.best_valid_loss:
                 self.best_valid_loss = valid_loss.avg
                 self.model.eval()
@@ -80,7 +81,7 @@ class Fitter:
                 self.save_model(f'{self.base_dir}/best-model.bin')
                 self.save_predictions(f'{self.base_dir}/all_predictions.csv')
 
-            self.early_stop(valid_loss.avg)
+            self.early_stop(best_final_score)
             if self.early_stop_epochs > self.config.SOLVER.EARLY_STOP_PATIENCE:
                 self.logger.info('Early Stopping!')
                 break
@@ -109,7 +110,7 @@ class Fitter:
                 targets = [{k: v.to(self.device) for k, v in t.items()} for t in targets]
                 for i in range(len(targets)):
                     targets[i]['boxes'] = targets[i]['boxes'].float()
-                loss_dict, detections = self.model(images, targets)
+                loss_dict, outputs = self.model(images, targets)
 
                 loss = sum(loss for loss in loss_dict.values())
 
@@ -118,7 +119,7 @@ class Fitter:
                 objectness = loss_dict['loss_objectness']
                 rpn_box_reg = loss_dict['loss_rpn_box_reg']
 
-                inference(self.all_predictions, images, detections, targets, image_ids)
+                inference(self.all_predictions, images, outputs, targets, image_ids)
 
                 valid_loss.update(loss.item(), batch_size)
                 loss_box_reg.update(box_reg.item(), batch_size)
@@ -127,14 +128,13 @@ class Fitter:
                 loss_rpn_box_reg.update(rpn_box_reg.item(), batch_size)
 
                 valid_loader.set_description(f'Valid Step {step}/{len(self.val_loader)}, ' + \
-                                             f'Learning rate {self.optimizer.param_groups[0]["lr"]}, ' + \
                                              f'valid_loss: {valid_loss.avg:.5f}, ' + \
                                              f'loss_box_reg: {loss_box_reg.avg:.5f}, ' + \
                                              f'loss_classifier: {loss_classifier.avg:.5f}, ' + \
                                              f'loss_objectness: {loss_objectness.avg:.5f}, ' + \
                                              f'loss_rpn_box_reg: {loss_rpn_box_reg.avg:.5f}, ' + \
                                              f'time: {(time.time() - t):.5f}')
-
+        
         best_score_threshold, best_final_score = evaluate(self.all_predictions)
 
         return best_score_threshold, best_final_score, valid_loss

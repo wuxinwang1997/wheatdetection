@@ -9,21 +9,21 @@ from torchvision.ops import boxes as box_ops
 from torchvision.ops import roi_align
 
 from . import _utils as det_utils
-
-from torch.jit.annotations import Optional, List, Dict, Tuple
-
 from .label_smooth_crossentropy import CrossEntropyLabelSmooth
+from torch.jit.annotations import Optional, List, Dict, Tuple
 
 
 def fastrcnn_loss(class_logits, box_regression, labels, regression_targets):
     # type: (Tensor, Tensor, List[Tensor], List[Tensor]) -> Tuple[Tensor, Tensor]
     """
     Computes the loss for Faster R-CNN.
+
     Arguments:
         class_logits (Tensor)
         box_regression (Tensor)
         labels (list[BoxList])
         regression_targets (Tensor)
+
     Returns:
         classification_loss (Tensor)
         box_loss (Tensor)
@@ -36,6 +36,7 @@ def fastrcnn_loss(class_logits, box_regression, labels, regression_targets):
 
     labal_smooth_loss = CrossEntropyLabelSmooth(2)
     classification_loss = labal_smooth_loss(class_logits, labels)
+
     # get indices that correspond to the regression targets for
     # the corresponding ground truth labels, to be used with
     # advanced indexing
@@ -62,10 +63,12 @@ def maskrcnn_inference(x, labels):
     by taking the mask corresponding to the class with max
     probability (which are of fixed size and directly output
     by the CNN) and return the masks in the mask field of the BoxList.
+
     Arguments:
         x (Tensor): the mask logits
         labels (list[BoxList]): bounding boxes that are used as
             reference, one for ech image
+
     Returns:
         results (list[BoxList]): one BoxList for each image, containing
             the extra field mask
@@ -105,6 +108,7 @@ def maskrcnn_loss(mask_logits, proposals, gt_masks, gt_labels, mask_matched_idxs
         proposals (list[BoxList])
         mask_logits (Tensor)
         targets (list[BoxList])
+
     Return:
         mask_loss (Tensor): scalar tensor containing the loss
     """
@@ -737,12 +741,15 @@ class RoIHeads(torch.nn.Module):
                 if self.has_keypoint():
                     assert t["keypoints"].dtype == torch.float32, 'target keypoints must of float type'
 
-        if self.training or targets is not None:
+        if self.training:
             proposals, matched_idxs, labels, regression_targets = self.select_training_samples(proposals, targets)
         else:
-            labels = None
-            regression_targets = None
-            matched_idxs = None
+            if targets is not None:
+                proposals, matched_idxs, labels, regression_targets = self.select_training_samples(proposals, targets)
+            else:
+                labels = None
+                regression_targets = None
+                matched_idxs = None
 
         box_features = self.box_roi_pool(features, proposals, image_shapes)
         box_features = self.box_head(box_features)

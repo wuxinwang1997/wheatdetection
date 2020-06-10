@@ -29,9 +29,11 @@ class BalancedPositiveNegativeSampler(object):
                 Each tensor corresponds to a specific image.
                 -1 values are ignored, 0 are considered as negatives and > 0 as
                 positives.
+
         Returns:
             pos_idx (list[tensor])
             neg_idx (list[tensor])
+
         Returns two lists of binary masks for each image.
         The first list contains the positive elements that were selected,
         and the second list the negative example.
@@ -79,6 +81,7 @@ def encode_boxes(reference_boxes, proposals, weights):
     """
     Encode a set of proposals with respect to some
     reference boxes
+
     Arguments:
         reference_boxes (Tensor): reference boxes
         proposals (Tensor): boxes to be encoded
@@ -148,6 +151,7 @@ class BoxCoder(object):
         """
         Encode a set of proposals with respect to some
         reference boxes
+
         Arguments:
             reference_boxes (Tensor): reference boxes
             proposals (Tensor): boxes to be encoded
@@ -177,6 +181,7 @@ class BoxCoder(object):
         """
         From a set of original boxes and encoded relative box offsets,
         get the decoded boxes.
+
         Arguments:
             rel_codes (Tensor): encoded boxes
             boxes (Tensor): reference boxes.
@@ -217,9 +222,11 @@ class Matcher(object):
     This class assigns to each predicted "element" (e.g., a box) a ground-truth
     element. Each predicted element will have exactly zero or one matches; each
     ground-truth element may be assigned to zero or more predicted elements.
+
     Matching is based on the MxN match_quality_matrix, that characterizes how well
     each (ground-truth, predicted)-pair match. For example, if the elements are
     boxes, the matrix may contain box IoU overlap values.
+
     The matcher returns a tensor of size N containing the index of the ground-truth
     element m that matches to prediction n. If there is no match, a negative value
     is returned.
@@ -260,6 +267,7 @@ class Matcher(object):
         Args:
             match_quality_matrix (Tensor[float]): an MxN tensor, containing the
             pairwise quality between M ground-truth elements and N predicted elements.
+
         Returns:
             matches (Tensor[int64]): an N tensor where N[i] is a matched gt in
             [0, M - 1] or a negative value indicating that prediction i could not

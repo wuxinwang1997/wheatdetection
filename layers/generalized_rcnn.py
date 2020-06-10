@@ -14,6 +14,7 @@ from torch import Tensor
 class GeneralizedRCNN(nn.Module):
     """
     Main class for Generalized R-CNN.
+
     Arguments:
         backbone (nn.Module):
         rpn (nn.Module):
@@ -37,9 +38,8 @@ class GeneralizedRCNN(nn.Module):
         # type: (Dict[str, Tensor], List[Dict[str, Tensor]]) -> Tuple[Dict[str, Tensor], List[Dict[str, Tensor]]]
         if self.training:
             return losses
-        else:
-            if losses:
-                return losses, detections
+        if losses:
+            return losses, detections
 
         return detections
 
@@ -49,15 +49,17 @@ class GeneralizedRCNN(nn.Module):
         Arguments:
             images (list[Tensor]): images to be processed
             targets (list[Dict[Tensor]]): ground-truth boxes present in the image (optional)
+
         Returns:
             result (list[BoxList] or dict[Tensor]): the output from the model.
                 During training, it returns a dict[Tensor] which contains the losses.
                 During testing, it returns list[BoxList] contains additional fields
                 like `scores`, `labels` and `mask` (for Mask R-CNN models).
+
         """
         if self.training and targets is None:
             raise ValueError("In training mode, targets should be passed")
-        if self.training or targets is not None:
+        if self.training:
             assert targets is not None
             for target in targets:
                 boxes = target["boxes"]

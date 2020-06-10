@@ -7,7 +7,7 @@ import torchvision
 from torchvision.ops import boxes as box_ops
 
 from . import _utils as det_utils
-from torchvision.models.detection.image_list import ImageList
+from .image_list import ImageList
 
 from torch.jit.annotations import List, Optional, Dict, Tuple
 
@@ -33,14 +33,18 @@ class AnchorGenerator(nn.Module):
     """
     Module that generates anchors for a set of feature maps and
     image sizes.
+
     The module support computing anchors at multiple sizes and aspect ratios
     per feature map. This module assumes aspect ratio = height / width for
     each anchor.
+
     sizes and aspect_ratios should have the same number of elements, and it should
     correspond to the number of feature maps.
+
     sizes[i] and aspect_ratios[i] can have an arbitrary number of elements,
     and AnchorGenerator will output a set of sizes[i] * aspect_ratios[i] anchors
     per spatial location for feature map i.
+
     Arguments:
         sizes (Tuple[Tuple[int]]):
         aspect_ratios (Tuple[Tuple[float]]):
@@ -175,6 +179,7 @@ class AnchorGenerator(nn.Module):
 class RPNHead(nn.Module):
     """
     Adds a simple RPN Head with classification and regression heads
+
     Arguments:
         in_channels (int): number of channels of the input feature
         num_anchors (int): number of anchors to be predicted
@@ -248,6 +253,7 @@ def concat_box_prediction_layers(box_cls, box_regression):
 class RegionProposalNetwork(torch.nn.Module):
     """
     Implements Region Proposal Network (RPN).
+
     Arguments:
         anchor_generator (AnchorGenerator): module that generates the anchors for a set of feature
             maps.
@@ -267,6 +273,7 @@ class RegionProposalNetwork(torch.nn.Module):
             contain two fields: training and testing, to allow for different values depending
             on training or evaluation
         nms_thresh (float): NMS threshold used for postprocessing the RPN proposals
+
     """
     __annotations__ = {
         'box_coder': det_utils.BoxCoder,
@@ -416,6 +423,7 @@ class RegionProposalNetwork(torch.nn.Module):
             pred_bbox_deltas (Tensor)
             labels (List[Tensor])
             regression_targets (List[Tensor])
+
         Returns:
             objectness_loss (Tensor)
             box_loss (Tensor)
@@ -460,6 +468,7 @@ class RegionProposalNetwork(torch.nn.Module):
             targets (List[Dict[Tensor]]): ground-truth boxes present in the image (optional).
                 If provided, each element in the dict should contain a field `boxes`,
                 with the locations of the ground-truth boxes.
+
         Returns:
             boxes (List[Tensor]): the predicted boxes from the RPN, one Tensor per
                 image.
@@ -484,8 +493,17 @@ class RegionProposalNetwork(torch.nn.Module):
         boxes, scores = self.filter_proposals(proposals, objectness, images.image_sizes, num_anchors_per_level)
 
         losses = {}
-        if self.training or targets is not None:
+        if self.training:
             assert targets is not None
+            labels, matched_gt_boxes = self.assign_targets_to_anchors(anchors, targets)
+            regression_targets = self.box_coder.encode(matched_gt_boxes, anchors)
+            loss_objectness, loss_rpn_box_reg = self.compute_loss(
+                objectness, pred_bbox_deltas, labels, regression_targets)
+            losses = {
+                "loss_objectness": loss_objectness,
+                "loss_rpn_box_reg": loss_rpn_box_reg,
+            }
+        if targets is not None:
             labels, matched_gt_boxes = self.assign_targets_to_anchors(anchors, targets)
             regression_targets = self.box_coder.encode(matched_gt_boxes, anchors)
             loss_objectness, loss_rpn_box_reg = self.compute_loss(
