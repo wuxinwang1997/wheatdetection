@@ -4,9 +4,10 @@
 @contact: wuxin.wang@whu.edu.cn
 """
 import numpy as np
-# from numba import jit
+import numba
+from numba import jit
 
-# @jit(nopython=True)
+@jit(nopython=True)
 def calculate_iou(gt, pr, form='pascal_voc') -> float:
     """Calculates the Intersection over Union.
 

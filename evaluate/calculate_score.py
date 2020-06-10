@@ -6,14 +6,16 @@
 
 import numpy as np
 from .map import calculate_image_precision
+import numba
 
 def calculate_final_score(all_predictions, score_threshold):
     final_scores = []
     final_missed_boxes_nums = []
     # Numba typed list!
-    iou_thresholds = []
+    iou_thresholds = numba.typed.List()
 
-    iou_thresholds = [0.5, 0.55, 0.6, 0.65, 0.7, 0.75]
+    for x in [0.5, 0.55, 0.6, 0.65, 0.7, 0.75]:
+        iou_thresholds.append(x)
 
     for i in range(len(all_predictions)):
         gt_boxes = all_predictions[i]['gt_boxes'].copy()

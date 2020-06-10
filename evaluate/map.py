@@ -6,9 +6,10 @@
 
 import numpy as np
 from evaluate.iou import calculate_iou
-# from numba import jit
+import numba
+from numba import jit
 
-# @jit(nopython=True)
+@jit(nopython=True)
 def find_best_match(gts, pred, pred_idx, threshold=0.5, form='pascal_voc', ious=None) -> int:
     """Returns the index of the 'best match' between the
     ground-truth boxes and the prediction. The 'best match'
@@ -52,7 +53,7 @@ def find_best_match(gts, pred, pred_idx, threshold=0.5, form='pascal_voc', ious=
     return best_match_idx
 
 
-# @jit(nopython=True)
+@jit(nopython=True)
 def calculate_precision(gts, preds, threshold=0.5, form='coco', ious=None) -> float:
     """Calculates precision for GT - prediction pairs at one threshold.
 
@@ -91,7 +92,7 @@ def calculate_precision(gts, preds, threshold=0.5, form='coco', ious=None) -> fl
 
     return tp / (tp + fp + fn)
 
-# @jit(nopython=True)
+@jit(nopython=True)
 def calculate_image_precision(gts, preds, thresholds=(0.5,), form='coco') -> float:
     """Calculates image precision.
 

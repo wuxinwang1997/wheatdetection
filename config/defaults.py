@@ -23,7 +23,7 @@ from yacs.config import CfgNode as CN
 
 _C = CN()
 
-_C.DEBUG = True
+_C.DEBUG = False
 _C.SEED = 42
 _C.VERBOSE = True
 
@@ -93,7 +93,7 @@ _C.SOLVER.SCHEDULER_NAME = "CosineAnnealingWarmRestarts"
 _C.SOLVER.COS_CPOCH = 2
 _C.SOLVER.T_MUL = 2
 
-_C.SOLVER.MAX_EPOCHS = 40
+_C.SOLVER.MAX_EPOCHS = 72
 
 _C.SOLVER.BASE_LR = 0.005
 _C.SOLVER.BIAS_LR_FACTOR = 1
@@ -125,4 +125,4 @@ _C.TEST.WEIGHT = "/content/output/best-checkpoint.bin"
 # ---------------------------------------------------------------------------- #
 # Misc options
 # ---------------------------------------------------------------------------- #
-_C.OUTPUT_DIR = "/content/output"
+_C.OUTPUT_DIR = "/content/drive/My Drive/global-wheat-detection/experiments/baseline"
