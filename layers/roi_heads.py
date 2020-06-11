@@ -718,6 +718,33 @@ class RoIHeads(torch.nn.Module):
 
         return all_boxes, all_scores, all_labels
 
+    def valid_loss(self, features, proposals, image_shapes, targets):
+        for t in targets:
+            # TODO: https://github.com/pytorch/pytorch/issues/26731
+            floating_point_types = (torch.float, torch.double, torch.half)
+            assert t["boxes"].dtype in floating_point_types, 'target boxes must of float type'
+            assert t["labels"].dtype == torch.int64, 'target labels must of int64 type'
+            if self.has_keypoint():
+                assert t["keypoints"].dtype == torch.float32, 'target keypoints must of float type'
+
+        proposals, matched_idxs, labels, regression_targets = self.select_training_samples(proposals, targets)
+        
+        box_features = self.box_roi_pool(features, proposals, image_shapes)
+        box_features = self.box_head(box_features)
+        class_logits, box_regression = self.box_predictor(box_features)
+
+        result = torch.jit.annotate(List[Dict[str, torch.Tensor]], [])
+
+        assert labels is not None and regression_targets is not None
+        loss_classifier, loss_box_reg = fastrcnn_loss(
+            class_logits, box_regression, labels, regression_targets)
+        losses = {
+            "loss_classifier": loss_classifier,
+            "loss_box_reg": loss_box_reg
+        }
+
+        return losses
+
     def forward(self,
                 features,      # type: Dict[str, Tensor]
                 proposals,     # type: List[Tensor]
@@ -740,23 +767,22 @@ class RoIHeads(torch.nn.Module):
                 assert t["labels"].dtype == torch.int64, 'target labels must of int64 type'
                 if self.has_keypoint():
                     assert t["keypoints"].dtype == torch.float32, 'target keypoints must of float type'
+        losses = {}
 
         if self.training:
             proposals, matched_idxs, labels, regression_targets = self.select_training_samples(proposals, targets)
         else:
             if targets is not None:
-                proposals, matched_idxs, labels, regression_targets = self.select_training_samples(proposals, targets)
-            else:
-                labels = None
-                regression_targets = None
-                matched_idxs = None
+                losses = self.valid_loss(features, proposals, image_shapes, targets)
+            labels = None
+            regression_targets = None
+            matched_idxs = None
 
         box_features = self.box_roi_pool(features, proposals, image_shapes)
         box_features = self.box_head(box_features)
         class_logits, box_regression = self.box_predictor(box_features)
 
         result = torch.jit.annotate(List[Dict[str, torch.Tensor]], [])
-        losses = {}
         if self.training:
             assert labels is not None and regression_targets is not None
             loss_classifier, loss_box_reg = fastrcnn_loss(
@@ -766,14 +792,6 @@ class RoIHeads(torch.nn.Module):
                 "loss_box_reg": loss_box_reg
             }
         else:
-            if targets is not None:
-                assert labels is not None and regression_targets is not None
-                loss_classifier, loss_box_reg = fastrcnn_loss(
-                    class_logits, box_regression, labels, regression_targets)
-                losses = {
-                    "loss_classifier": loss_classifier,
-                    "loss_box_reg": loss_box_reg
-                }
             boxes, scores, labels = self.postprocess_detections(class_logits, box_regression, proposals, image_shapes)
             num_images = len(boxes)
             for i in range(num_images):

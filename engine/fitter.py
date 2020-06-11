@@ -38,9 +38,9 @@ class Fitter:
         self.device = device
         self.model.to(self.device)
 
-        self.optimizer = make_optimizer(cfg, model)
+        self.optimizer = make_optimizer(cfg, self.model)
 
-        self.scheduler = make_scheduler(cfg, self.optimizer, train_loader)
+        self.scheduler = make_scheduler(cfg, self.optimizer, self.train_loader)
 
         self.logger.info(f'Fitter prepared. Device is {self.device}')
         self.all_predictions = []
