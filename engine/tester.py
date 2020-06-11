@@ -80,17 +80,6 @@ class Tester:
 
         return " ".join(pred_strings)
 
-    def save(self, path):
-        self.model.eval()
-        torch.save({
-            'model_state_dict': self.model.state_dict(),
-            'optimizer_state_dict': self.optimizer.state_dict(),
-            'scheduler_state_dict': self.scheduler.state_dict(),
-            'best_score_threshold': self.best_score_threshold,
-            'best_final_score': self.best_final_score,
-            'epoch': self.epoch,
-        }, path)
-
     def save_predictions(self, results):
         test_df = pd.DataFrame(results, columns=['image_id', 'PredictionString'])
         test_df.to_csv('submission.csv', index=False)
@@ -98,8 +87,6 @@ class Tester:
     def load(self, path):
         checkpoint = torch.load(path)
         self.model.load_state_dict(checkpoint['model_state_dict'])
-        self.best_score_threshold = checkpoint['best_score_threshold']
-        self.best_final_score = checkpoint['best_final_score']
 
     def log(self, message):
         if self.config.VERBOSE:
