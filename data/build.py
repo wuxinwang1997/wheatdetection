@@ -26,8 +26,8 @@ def split_dataset(cfg):
     marking.drop(columns=['bbox'], inplace=True)
     marking['area'] = marking['w'] * marking['h']
     marking = marking[marking['area'] < 154200.0]
-    error_bbox = [100648.0, 145360.0, 149744.0, 119790.0, 106743.0]
-    marking = marking[~marking['area'].isin(error_bbox)]
+    marking = marking[marking['w'] >= 10.0]
+    marking = marking[marking['h'] >= 10.0]
 
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 

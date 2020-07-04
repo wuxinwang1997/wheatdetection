@@ -8,7 +8,8 @@ import argparse
 import os
 import sys
 from os import mkdir
-sys.path.append('/content/drive/My Drive/global-wheat-detection/code/wheatdetection/')
+# sys.path.append('/content/drive/My Drive/global-wheat-detection/code/wheatdetection/')
+sys.path.append('/kaggle/input/resnest/wheatdetection/wheatdetection/')
 from config import cfg
 from data import make_data_loader
 from engine.fitter import Fitter

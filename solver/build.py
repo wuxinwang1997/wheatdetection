@@ -8,17 +8,12 @@ import torch
 
 
 def make_optimizer(cfg, model):
-    params = []
-    for key, value in model.named_parameters():
-        if not value.requires_grad:
-            continue
-        lr = cfg.SOLVER.BASE_LR
-        weight_decay = cfg.SOLVER.WEIGHT_DECAY
-        if "bias" in key:
-            lr = cfg.SOLVER.BASE_LR * cfg.SOLVER.BIAS_LR_FACTOR
-            weight_decay = cfg.SOLVER.WEIGHT_DECAY_BIAS
-        if "bn" in key:
-            weight_decay = cfg.SOLVER.WEIGHT_DECAY_BN
-        params += [{"params": [value], "lr": lr, "weight_decay": weight_decay}]
-    optimizer = getattr(torch.optim, cfg.SOLVER.OPTIMIZER_NAME)(params, momentum=cfg.SOLVER.MOMENTUM)
+    param_optimizer = list(model.named_parameters())
+    no_decay = ['bias', 'bn']
+    optimizer_grouped_parameters = [
+        {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': cfg.SOLVER.WEIGHT_DECAY},
+        {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
+    ]
+
+    optimizer = getattr(torch.optim, cfg.SOLVER.OPTIMIZER_NAME)(model.parameters(), lr=cfg.SOLVER.BASE_LR, momentum=cfg.SOLVER.MOMENTUM, nesterov=True)
     return optimizer

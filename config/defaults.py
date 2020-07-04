@@ -4,7 +4,8 @@
 @contact: wuxin.wang@whu.edu.cn
 """
 import sys
-sys.path.insert(0, "/content/drive/My Drive/global-wheat-detection/code/wheatdetection/external/yacs")
+# sys.path.insert(0, "/content/drive/My Drive/global-wheat-detection/code/wheatdetection/external/yacs")
+sys.path.insert(0, "/kaggle/input/resnest/wheatdetection/wheatdetection/external/yacs")
 from yacs.config import CfgNode as CN
 
 # -----------------------------------------------------------------------------
@@ -30,6 +31,7 @@ _C.VERBOSE = True
 _C.MODEL = CN()
 _C.MODEL.DEVICE = "cuda"
 _C.MODEL.NUM_CLASSES = 2
+_C.MODEL.PRETRAINED = True
 
 # -----------------------------------------------------------------------------
 # INPUT
@@ -93,7 +95,7 @@ _C.SOLVER.SCHEDULER_NAME = "CosineAnnealingWarmRestarts"
 _C.SOLVER.COS_CPOCH = 2
 _C.SOLVER.T_MUL = 2
 
-_C.SOLVER.MAX_EPOCHS = 72
+_C.SOLVER.MAX_EPOCHS = 40
 
 _C.SOLVER.BASE_LR = 0.005
 _C.SOLVER.BIAS_LR_FACTOR = 1

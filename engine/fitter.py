@@ -17,7 +17,7 @@ import pandas as pd
 from solver.build import make_optimizer
 from solver.lr_scheduler import make_scheduler
 import logging
-from google.colab import output
+# from google.colab import output
 warnings.filterwarnings("ignore")
 
 class Fitter:
