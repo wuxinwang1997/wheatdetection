@@ -4,8 +4,7 @@
 @contact: wuxin.wang@whu.edu.cn
 """
 import sys
-# sys.path.insert(0, "/content/drive/My Drive/global-wheat-detection/code/wheatdetection/external/yacs")
-sys.path.insert(0, "/kaggle/input/resnest/wheatdetection/wheatdetection/external/yacs")
+sys.path.insert(0, "/content/wheatdetection/external/yacs")
 from yacs.config import CfgNode as CN
 
 # -----------------------------------------------------------------------------
