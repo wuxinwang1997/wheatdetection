@@ -4,7 +4,7 @@
 @contact: wuxin.wang@whu.edu.cn
 """
 import sys
-sys.path.insert(0, "../external/yacs")
+sys.path.insert(0, "./external/yacs")
 from yacs.config import CfgNode as CN
 
 # -----------------------------------------------------------------------------

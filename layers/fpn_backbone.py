@@ -4,7 +4,7 @@
 @contact: wuxin.wang@whu.edu.cn
 """
 import sys
-sys.path.insert(0, "../external/pytorch-image-models")
+sys.path.insert(0, "./external/pytorch-image-models")
 from timm.models.resnest import resnest101e
 from torchvision.models import resnet
 from torchvision.models.detection.backbone_utils import BackboneWithFPN

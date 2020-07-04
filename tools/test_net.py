@@ -12,7 +12,7 @@ from os import mkdir
 import torch
 
 from os import mkdir
-# sys.path.append('.')
+sys.path.append('.')
 from config import cfg
 from data import make_test_data_loader
 from modeling import build_model

@@ -125,7 +125,7 @@ class Tester:
         results = self.infer()
         self.save_predictions(results)
 
-    def process_det(index, outputs, score_threshold=0.5):
+    def process_det(self, index, outputs, score_threshold=0.5):
         boxes = outputs[index]['boxes'].data.cpu().numpy()
         scores = outputs[index]['scores'].data.cpu().numpy()
         boxes = (boxes).clip(min=0, max=1023).astype(int)
@@ -134,13 +134,13 @@ class Tester:
         scores = scores[indexes]
         return boxes, scores
 
-    def make_tta_predictions(images, score_threshold=0.5):
+    def make_tta_predictions(self, tta_transforms, images, score_threshold=0.5):
         with torch.no_grad():
             images = torch.stack(images).float().cuda()
             predictions = []
             for tta_transform in tta_transforms:
                 result = []
-                outputs = net(tta_transform.batch_augment(images.clone()))
+                outputs = self.model(tta_transform.batch_augment(images.clone()))
 
                 for i, image in enumerate(images):
                     boxes = outputs[i]['boxes'].data.cpu().numpy()
@@ -155,7 +155,7 @@ class Tester:
                 predictions.append(result)
         return predictions
 
-    def run_wbf(predictions, image_index, image_size=1024, iou_thr=0.5, skip_box_thr=0.43, weights=None):
+    def run_wbf(self, predictions, image_index, image_size=1024, iou_thr=0.5, skip_box_thr=0.43, weights=None):
         boxes = [(prediction[image_index]['boxes'] / (image_size - 1)).tolist() for prediction in predictions]
         scores = [prediction[image_index]['scores'].tolist() for prediction in predictions]
         labels = [np.ones(prediction[image_index]['scores'].shape[0]).astype(int).tolist() for prediction in
@@ -166,7 +166,7 @@ class Tester:
         boxes = boxes * (image_size - 1)
         return boxes, scores, labels
 
-    def format_prediction_string(boxes, scores):
+    def format_prediction_string(self, boxes, scores):
         pred_strings = []
         for j in zip(scores, boxes):
             pred_strings.append("{0:.4f} {1} {2} {3} {4}".format(j[0], j[1][0], j[1][1], j[1][2], j[1][3]))
@@ -174,7 +174,6 @@ class Tester:
 
     def infer(self):
         self.model.eval()
-        results = []
         torch.cuda.empty_cache()
 
         tta_transforms = []
@@ -186,7 +185,7 @@ class Tester:
         results = []
 
         for images, image_ids in test_loader:
-            predictions = self.make_tta_predictions(images)
+            predictions = self.make_tta_predictions(tta_transforms, images)
             for i, image in enumerate(images):
                 boxes, scores, labels = self.run_wbf(predictions, image_index=i)
                 boxes = boxes.round().astype(np.int32).clip(min=0, max=1023)
