@@ -23,6 +23,7 @@ def test(cfg):
     model = build_model(cfg)
     device = cfg.MODEL.DEVICE
     checkpoint = torch.load(cfg.TEST.WEIGHT)
+    model.load_state_dict(checkpoint['model_state_dict'])
     best_score_threshold = checkpoint['best_score_threshold']
     best_final_score = checkpoint['best_final_score']
     print('-' * 30)

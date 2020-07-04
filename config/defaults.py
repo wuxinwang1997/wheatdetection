@@ -110,7 +110,7 @@ _C.SOLVER.WARMUP_EPOCHS = 10
 _C.SOLVER.EARLY_STOP_PATIENCE = 20
 
 _C.SOLVER.TRAIN_CHECKPOINT = False
-_C.SOLVER.CLEAR_OUTPUT = True
+_C.SOLVER.CLEAR_OUTPUT = 10
 
 # Number of images per batch
 # This is global, so if we have 8 GPUs and IMS_PER_BATCH = 16, each GPU will

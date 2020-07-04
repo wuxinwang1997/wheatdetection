@@ -87,8 +87,8 @@ class Fitter:
                 self.logger.info('Early Stopping!')
                 break
 
-            if self.epoch % self.config.SOLVER.CLEAR_OUTPUT == 0:
-                output.clear()
+            # if self.epoch % self.config.SOLVER.CLEAR_OUTPUT == 0:
+            #     output.clear()
 
             self.epoch += 1
 
