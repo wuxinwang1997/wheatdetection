@@ -4,7 +4,7 @@
 @contact: wuxin.wang@whu.edu.cn
 """
 import sys
-sys.path.insert(0, "/content/wheatdetection/external/yacs")
+sys.path.insert(0, ".")
 from yacs.config import CfgNode as CN
 
 # -----------------------------------------------------------------------------
