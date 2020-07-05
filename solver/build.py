@@ -16,5 +16,4 @@ def make_optimizer(cfg, model):
     ]
 
     optimizer = getattr(torch.optim, cfg.SOLVER.OPTIMIZER_NAME)(model.parameters(), lr=cfg.SOLVER.BASE_LR, momentum=cfg.SOLVER.MOMENTUM, nesterov=True)
-    opt = SWA(optimizer, swa_start=10, swa_freq=5, swa_lr=None)
     return optimizer

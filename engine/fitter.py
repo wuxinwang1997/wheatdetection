@@ -17,7 +17,7 @@ import pandas as pd
 from solver.build import make_optimizer
 from solver.lr_scheduler import make_scheduler
 import logging
-# from google.colab import output
+from google.colab import output
 warnings.filterwarnings("ignore")
 
 class Fitter:
@@ -87,10 +87,11 @@ class Fitter:
                 self.logger.info('Early Stopping!')
                 break
 
-            # if self.epoch % self.config.SOLVER.CLEAR_OUTPUT == 0:
-            #     output.clear()
+            if self.epoch % self.config.SOLVER.CLEAR_OUTPUT == 0:
+                output.clear()
 
             self.epoch += 1
+        # self.optimizer.swap_swa_param()
 
     def validation(self):
         self.model.eval()
@@ -140,8 +141,9 @@ class Fitter:
             loss_classifier.update(classifier.item(), batch_size)
             loss_objectness.update(objectness.item(), batch_size)
             loss_rpn_box_reg.update(rpn_box_reg.item(), batch_size)
-            # self.optimizer.step()
-            self.optimizer.swap_swa_param()
+            self.optimizer.step()
+            # if self.epoch+1 >= 10 and (self.epoch+1) % 5 == 0:
+            #     self.optimizer.update_swa()
 
             if self.do_scheduler:
                 self.scheduler.step()

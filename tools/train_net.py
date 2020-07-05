@@ -18,6 +18,7 @@ import random
 import torch
 import numpy as np
 from utils.logger import setup_logger
+from .check_anchor import check_anchors
 
 def seed_everything(seed):
     random.seed(seed)
@@ -34,8 +35,8 @@ def train(cfg, logger):
     device = cfg.MODEL.DEVICE
     check = cfg.SOLVER.TRAIN_CHECKPOINT
 
-    train_loader, val_loader = make_data_loader(cfg, is_train=True)
-
+    train_loader, val_loader, train_dataset = make_data_loader(cfg, is_train=True)
+    check_anchors(train_dataset, model=model, thr=4.0, imgsz=1024)
     fitter = Fitter(model=model, device=device, cfg=cfg, train_loader=train_loader, val_loader=val_loader, logger=logger)
     if check:
         fitter.load(f'{cfg.OUTPUT_DIR}/last-checkpoint.bin')

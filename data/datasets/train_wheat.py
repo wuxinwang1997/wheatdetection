@@ -23,15 +23,15 @@ class train_wheat(Dataset):
     def __getitem__(self, index: int):
         image_id = self.image_ids[index]
         p_ratio = random.random()
-        if self.test or p_ratio > 0.6:
+        if self.test:
             image, boxes = self.load_image_and_boxes(index)
         else:
-            if p_ratio < 0.2:
-                image, boxes = self.load_mosaic_image_and_boxes(index)
-            elif p_ratio < 0.4:
-                image, boxes = self.load_image_and_bboxes_with_cutmix(index)
-            else:
-                image, boxes = self.load_mixup_image_and_boxes(index)
+
+            image, boxes = self.load_mosaic_image_and_boxes(index)
+            # elif p_ratio < 0.4:
+            #     image, boxes = self.load_image_and_bboxes_with_cutmix(index)
+            # else:
+            #     image, boxes = self.load_mixup_image_and_boxes(index)
 
         # there is only one class
         labels = torch.ones((boxes.shape[0],), dtype=torch.int64)
@@ -109,8 +109,17 @@ class train_wheat(Dataset):
 
             result_boxes.append(boxes)
 
-        result_boxes = np.concatenate(result_boxes, 0)
-        np.clip(result_boxes[:, 0:], 0, 2 * s, out=result_boxes[:, 0:])
+        if len(result_boxes):
+            result_boxes = np.concatenate(result_boxes, 0)
+            np.clip(result_boxes[:, 0:], 0, 2 * s, out=result_boxes[:, 0:])
+        # Augment
+        # img4 = img4[s // 2: int(s * 1.5), s // 2:int(s * 1.5)]  # center crop (WARNING, requires box pruning)
+        result_image, result_boxes = self.random_affine(result_image, result_boxes,
+                                    degrees=0.0,
+                                    translate=0.0,
+                                    scale=self.hyp['scale'],
+                                    shear=0.5,
+                                    border=[-imsize // 2, -imsize // 2])  # border to remove
         result_boxes = result_boxes.astype(np.int32)
         result_boxes = result_boxes[
             np.where((result_boxes[:, 2] - result_boxes[:, 0]) * (result_boxes[:, 3] - result_boxes[:, 1]) > 0)]
@@ -195,3 +204,71 @@ class train_wheat(Dataset):
         image, boxes = self.load_image_and_boxes(index)
         r_image, r_boxes = self.load_image_and_boxes(random.randint(0, self.image_ids.shape[0] - 1))
         return (image + r_image) / 2, np.vstack((boxes, r_boxes)).astype(np.int32)
+
+    def random_affine(self, img, targets=(), degrees=10, translate=.1, scale=.1, shear=10, border=(0, 0)):
+        # torchvision.transforms.RandomAffine(degrees=(-10, 10), translate=(.1, .1), scale=(.9, 1.1), shear=(-10, 10))
+        # https://medium.com/uruvideo/dataset-augmentation-with-random-homographies-a8f4b44830d4
+        # targets = [cls, xyxy]
+
+        height = img.shape[0] + border[0] * 2  # shape(h,w,c)
+        width = img.shape[1] + border[1] * 2
+
+        # Rotation and Scale
+        R = np.eye(3)
+        a = random.uniform(-degrees, degrees)
+        # a += random.choice([-180, -90, 0, 90])  # add 90deg rotations to small rotations
+        s = random.uniform(1 - scale, 1 + scale)
+        # s = 2 ** random.uniform(-scale, scale)
+        R[:2] = cv2.getRotationMatrix2D(angle=a, center=(img.shape[1] / 2, img.shape[0] / 2), scale=s)
+
+        # Translation
+        T = np.eye(3)
+        T[0, 2] = random.uniform(-translate, translate) * img.shape[1] + border[1]  # x translation (pixels)
+        T[1, 2] = random.uniform(-translate, translate) * img.shape[0] + border[0]  # y translation (pixels)
+
+        # Shear
+        S = np.eye(3)
+        S[0, 1] = math.tan(random.uniform(-shear, shear) * math.pi / 180)  # x shear (deg)
+        S[1, 0] = math.tan(random.uniform(-shear, shear) * math.pi / 180)  # y shear (deg)
+
+        # Combined rotation matrix
+        M = S @ T @ R  # ORDER IS IMPORTANT HERE!!
+        if (border[0] != 0) or (border[1] != 0) or (M != np.eye(3)).any():  # image changed
+            img = cv2.warpAffine(img, M[:2], dsize=(width, height), flags=cv2.INTER_LINEAR, borderValue=(114, 114, 114))
+
+        # Transform label coordinates
+        n = len(targets)
+        if n:
+            # warp points
+            xy = np.ones((n * 4, 3))
+            xy[:, :2] = targets[:, [1, 2, 3, 4, 1, 4, 3, 2]].reshape(n * 4, 2)  # x1y1, x2y2, x1y2, x2y1
+            xy = (xy @ M.T)[:, :2].reshape(n, 8)
+
+            # create new boxes
+            x = xy[:, [0, 2, 4, 6]]
+            y = xy[:, [1, 3, 5, 7]]
+            xy = np.concatenate((x.min(1), y.min(1), x.max(1), y.max(1))).reshape(4, n).T
+
+            # # apply angle-based reduction of bounding boxes
+            # radians = a * math.pi / 180
+            # reduction = max(abs(math.sin(radians)), abs(math.cos(radians))) ** 0.5
+            # x = (xy[:, 2] + xy[:, 0]) / 2
+            # y = (xy[:, 3] + xy[:, 1]) / 2
+            # w = (xy[:, 2] - xy[:, 0]) * reduction
+            # h = (xy[:, 3] - xy[:, 1]) * reduction
+            # xy = np.concatenate((x - w / 2, y - h / 2, x + w / 2, y + h / 2)).reshape(4, n).T
+
+            # reject warped points outside of image
+            xy[:, [0, 2]] = xy[:, [0, 2]].clip(0, width)
+            xy[:, [1, 3]] = xy[:, [1, 3]].clip(0, height)
+            w = xy[:, 2] - xy[:, 0]
+            h = xy[:, 3] - xy[:, 1]
+            area = w * h
+            area0 = (targets[:, 3] - targets[:, 1]) * (targets[:, 4] - targets[:, 2])
+            ar = np.maximum(w / (h + 1e-16), h / (w + 1e-16))  # aspect ratio
+            i = (w > 2) & (h > 2) & (area / (area0 * s + 1e-16) > 0.2) & (ar < 20)
+
+            targets = targets[i]
+            targets[:, 1:5] = xy[i]
+
+        return img, targets

@@ -212,7 +212,6 @@ class Tester:
 
         return " ".join(pred_strings)
 
-
     def save_predictions(self, results):
         test_df = pd.DataFrame(results, columns=['image_id', 'PredictionString'])
         test_df.to_csv(f'{self.config.OUTPUT_DIR}/submission.csv', index=False)
