@@ -100,7 +100,7 @@ def make_data_loader(cfg, is_train=True):
         collate_fn=collate_batch,
     )
 
-    return train_loader, val_loader, train_dataset
+    return train_loader, val_loader
 
 def build_test_dataset(cfg):
     test_df = pd.read_csv(f'{cfg.DATASETS.ROOT_DIR}/sample_submission.csv')
