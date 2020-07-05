@@ -17,7 +17,7 @@ class WheatDetector(nn.Module):
     def __init__(self, cfg, **kwargs):
         super(WheatDetector, self).__init__()
         self.backbone = fpn_backbone(pretrained=True)
-        anchor_generator = AnchorGenerator(sizes=((16, 32, 64, 128, 256, 512),), aspect_ratios = ((0.5, 1.0, 2.0, 4.0),))
+        anchor_generator = AnchorGenerator(sizes=((16, 32, 64, 128, 256, 512),), aspect_ratios = ((0.25, 0.5, 1.0, 2.0, 4.0),))
         self.base = FasterRCNN(self.backbone, num_classes = cfg.MODEL.NUM_CLASSES, rpn_anchor_generator=anchor_generator, **kwargs)
         self.base.roi_heads.fastrcnn_loss = self.fastrcnn_loss
 
