@@ -3,6 +3,8 @@
 @author:  wuxin.wang
 @contact: wuxin.wang@whu.edu.cn
 """
+import math
+
 import cv2
 import random
 import numpy as np
@@ -117,8 +119,8 @@ class train_wheat(Dataset):
         result_image, result_boxes = self.random_affine(result_image, result_boxes,
                                     degrees=0.0,
                                     translate=0.0,
-                                    scale=self.hyp['scale'],
-                                    shear=0.5,
+                                    scale=0.5,
+                                    shear=0.0,
                                     border=[-imsize // 2, -imsize // 2])  # border to remove
         result_boxes = result_boxes.astype(np.int32)
         result_boxes = result_boxes[
