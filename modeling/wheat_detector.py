@@ -7,7 +7,6 @@
 import torch
 from torch import nn
 from torchvision.models.detection import FasterRCNN
-from torchvision.models.detection.rpn import AnchorGenerator
 import torchvision.models.detection._utils as det_utils
 from layers.fpn_backbone import fpn_backbone
 from layers.label_smooth_crossentropy import CrossEntropyLabelSmooth
@@ -17,8 +16,7 @@ class WheatDetector(nn.Module):
     def __init__(self, cfg, **kwargs):
         super(WheatDetector, self).__init__()
         self.backbone = fpn_backbone(pretrained=True)
-        anchor_generator = AnchorGenerator(sizes=((16, 32, 64, 128, 256, 512),), aspect_ratios = ((0.25, 0.5, 1.0, 2.0, 4.0),))
-        self.base = FasterRCNN(self.backbone, num_classes = cfg.MODEL.NUM_CLASSES, rpn_anchor_generator=anchor_generator, **kwargs)
+        self.base = FasterRCNN(self.backbone, num_classes = cfg.MODEL.NUM_CLASSES, **kwargs)
         self.base.roi_heads.fastrcnn_loss = self.fastrcnn_loss
 
     def fastrcnn_loss(self, class_logits, box_regression, labels, regression_targets):

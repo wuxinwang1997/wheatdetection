@@ -140,7 +140,8 @@ class Fitter:
             loss_classifier.update(classifier.item(), batch_size)
             loss_objectness.update(objectness.item(), batch_size)
             loss_rpn_box_reg.update(rpn_box_reg.item(), batch_size)
-            self.optimizer.step()
+            # self.optimizer.step()
+            self.optimizer.swap_swa_param()
 
             if self.do_scheduler:
                 self.scheduler.step()
