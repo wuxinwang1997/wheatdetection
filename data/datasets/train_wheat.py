@@ -25,15 +25,15 @@ class train_wheat(Dataset):
     def __getitem__(self, index: int):
         image_id = self.image_ids[index]
         p_ratio = random.random()
-        if self.test:
+        if self.test or p_ratio > 0.75:
             image, boxes = self.load_image_and_boxes(index)
         else:
-
-            image, boxes = self.load_mosaic_image_and_boxes(index)
-            # elif p_ratio < 0.4:
-            #     image, boxes = self.load_image_and_bboxes_with_cutmix(index)
-            # else:
-            #     image, boxes = self.load_mixup_image_and_boxes(index)
+            if p_ratio < 0.75:
+                image, boxes = self.load_mosaic_image_and_boxes(index)
+            elif p_ratio < 0.25:
+                image, boxes = self.load_image_and_bboxes_with_cutmix(index)
+            else:
+                image, boxes = self.load_mixup_image_and_boxes(index)
 
         # there is only one class
         labels = torch.ones((boxes.shape[0],), dtype=torch.int64)
