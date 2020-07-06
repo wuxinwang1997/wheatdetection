@@ -4,7 +4,11 @@
 @contact: wuxin.wang@whu.edu.cn
 """
 import sys
+<<<<<<< HEAD
 sys.path.insert(0, "./external/yacs")
+=======
+sys.path.insert(0, "/content/drive/My Drive/Global_Wheat_Detection/code/wheatdetection/external/yacs")
+>>>>>>> d519b2ac861c4c457525c1afe654f42bc2e77079
 from yacs.config import CfgNode as CN
 
 # -----------------------------------------------------------------------------
@@ -126,4 +130,4 @@ _C.TEST.WEIGHT = "/content/output/best-checkpoint.bin"
 # ---------------------------------------------------------------------------- #
 # Misc options
 # ---------------------------------------------------------------------------- #
-_C.OUTPUT_DIR = "/content/drive/My Drive/global-wheat-detection/experiments/baseline"
+_C.OUTPUT_DIR = "/content/drive/My Drive/Global_Wheat_Detection/experiments/baseline"

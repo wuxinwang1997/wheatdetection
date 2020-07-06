@@ -32,14 +32,24 @@ And I remove the high-leval api ignite which makes the project not easy to chang
 │
 ├──  engine
 │   └── average.py   -this file contains the average method.
-│   └── fitter.py     - this file contains the train loops.
+│   └── fitter.py     - this file contains the train loops and the validation loop contains valid loss output.
 |   └── inference.py   - this file contains the inference process.
 │
 │
 ├── layers              - this folder contains any customed layers of my project.
-│   └── fpn_backbone.py  -this file contains the backbone function with fpn
-│   └── label_smooth_crossentropy.py     -this file contains the label smooth crossentropy loss
-│
+│   └── _utils.py        -copy of torchvision.models.detection._utils
+|   └── backbone_utils.py     -this file is based on torchvision.models.detection.backbone_utils and add resnest101e to it.
+|   └── faster_rcnn.py     -copy of torchvision.models.detection.backbone_utils
+│   └── generalized_rcnn.py     -this file is based on torchvision.models.detection.generalized_rcnn and add valid loss returning to it.
+|   └── image_list.py     -copy of torchvision.models.detection.image_list
+|   └── keypoint_rcnn.py     -copy of torchvision.models.detection.keypoint_rcnn
+|   └── label_smooth_crossentropy.py     -this file contains the label smooth crossentropy loss
+|   └── mask_rcnn.py     -copy of torchvision.models.detection.mask_rcnn
+|   └── roi_heads.py     -this file is based on torchvision.models.detection.roi_heads and add valid loss returning to it.
+|   └── rpn.py     -this file is based on torchvision.models.detection.rpn and add valid loss returning to it.
+|   └── transform.py     -copy of torchvision.models.detection.transform
+|
+|
 ├── modeling            - this folder contains any model of my project.
 │   └── wheat_detector.py   -this file defines the wheat_detector model based on fasterrcnn
 │

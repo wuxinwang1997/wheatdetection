@@ -16,4 +16,8 @@ def make_optimizer(cfg, model):
     ]
 
     optimizer = getattr(torch.optim, cfg.SOLVER.OPTIMIZER_NAME)(model.parameters(), lr=cfg.SOLVER.BASE_LR, momentum=cfg.SOLVER.MOMENTUM, nesterov=True)
+<<<<<<< HEAD
     return optimizer
+=======
+    return optimizer
+>>>>>>> d519b2ac861c4c457525c1afe654f42bc2e77079

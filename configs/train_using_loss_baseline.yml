@@ -1,0 +1,5 @@
+DATASETS:
+  ROOT_DIR: "/content/global-wheat-detection"
+SOLVER:
+  MAX_EPOCHS: 40
+OUTPUT_DIR: "/content/drive/My Drive/Global_Wheat_Detection/experiments/using-loss-baseline"

@@ -15,7 +15,7 @@ from .datasets.train_wheat import train_wheat
 from .datasets.test_wheat import test_wheat
 from .transforms import build_transforms
 from .transforms import get_test_transform
-from .collate_batch import  collate_batch
+from .collate_batch import collate_batch
 
 def split_dataset(cfg):
     marking = pd.read_csv(f'{cfg.DATASETS.ROOT_DIR}/train.csv')
@@ -26,8 +26,15 @@ def split_dataset(cfg):
     marking.drop(columns=['bbox'], inplace=True)
     marking['area'] = marking['w'] * marking['h']
     marking = marking[marking['area'] < 154200.0]
+<<<<<<< HEAD
     marking = marking[marking['w'] >= 10.0]
     marking = marking[marking['h'] >= 10.0]
+=======
+    error_bbox = [100648.0, 145360.0, 149744.0, 119790.0, 106743.0]
+    marking = marking[~marking['area'].isin(error_bbox)]
+    marking = marking[marking['h']>16.0]
+    marking = marking[marking['w']>16.0]
+>>>>>>> d519b2ac861c4c457525c1afe654f42bc2e77079
 
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 

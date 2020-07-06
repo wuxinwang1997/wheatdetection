@@ -214,7 +214,15 @@ class Tester:
 
     def save_predictions(self, results):
         test_df = pd.DataFrame(results, columns=['image_id', 'PredictionString'])
+<<<<<<< HEAD
         test_df.to_csv(f'{self.config.OUTPUT_DIR}/submission.csv', index=False)
+=======
+        test_df.to_csv('submission.csv', index=False)
+
+    def load(self, path):
+        checkpoint = torch.load(path)
+        self.model.load_state_dict(checkpoint['model_state_dict'])
+>>>>>>> d519b2ac861c4c457525c1afe654f42bc2e77079
 
     def log(self, message):
         if self.config.VERBOSE:

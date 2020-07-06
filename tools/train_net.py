@@ -8,7 +8,11 @@ import argparse
 import os
 import sys
 from os import mkdir
+<<<<<<< HEAD
 sys.path.append('.')
+=======
+sys.path.append('/content/drive/My Drive/Global_Wheat_Detection/code/wheatdetection')
+>>>>>>> d519b2ac861c4c457525c1afe654f42bc2e77079
 from config import cfg
 from data import make_data_loader
 from engine.fitter import Fitter
