@@ -8,6 +8,7 @@ And I remove the high-leval api ignite which makes the project not easy to chang
 
 # Table Of Contents
 -  [In Details](#in-details)
+-  [How to run this project](#running)
 -  [Future Work](#future-work)
 -  [Contributing](#contributing)
 -  [Acknowledgments](#acknowledgments)
@@ -73,6 +74,15 @@ And I remove the high-leval api ignite which makes the project not easy to chang
      ├── test_data_sampler.py
 ```
 
+# How to run this project
+train
+```buildoutcfg
+python ./tools/train_net.py OUTPUT_DIR '("/content/experiments/")'
+```
+infer
+```buildoutcfg
+python ./tools/test_net.py MODEL.PRETRAINED '(False)' DATASETS.ROOT_DIR '("/kaggle/input/global-wheat-detection")' TEST.WEIGHT '("/kaggle/input/resnestwheat/giou-fold0.bin")' OUTPUT_DIR '("/kaggle/working/")'
+```
 
 # Future Work
 

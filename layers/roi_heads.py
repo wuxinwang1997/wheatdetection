@@ -34,7 +34,7 @@ def fastrcnn_loss(class_logits, box_regression, labels, regression_targets):
 
     # classification_loss = F.cross_entropy(class_logits, labels)
 
-    labal_smooth_loss = CrossEntropyLabelSmooth(2)
+    labal_smooth_loss = CrossEntropyLabelSmooth(num_classes=2, epsilon=0.05)
     classification_loss = labal_smooth_loss(class_logits, labels)
 
     # get indices that correspond to the regression targets for

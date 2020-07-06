@@ -5,7 +5,7 @@ from torchvision.ops.feature_pyramid_network import FeaturePyramidNetwork, LastL
 from torchvision.ops import misc as misc_nn_ops
 from torchvision.models._utils import IntermediateLayerGetter
 import sys
-sys.path.insert(0, "/content/drive/My Drive/Global_Wheat_Detection/code/wheatdetection/external/pytorch-image-models")
+sys.path.insert(0, "./external/pytorch-image-models")
 from timm.models.resnest import resnest101e
 
 class BackboneWithFPN(nn.Module):
