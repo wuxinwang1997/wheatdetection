@@ -28,7 +28,7 @@ class train_wheat(Dataset):
         if self.test or p_ratio > 0.75:
             image, boxes = self.load_image_and_boxes(index)
         else:
-            if p_ratio < 0.75:
+            if p_ratio > 0.5:
                 image, boxes = self.load_mosaic_image_and_boxes(index)
             elif p_ratio < 0.25:
                 image, boxes = self.load_image_and_bboxes_with_cutmix(index)
